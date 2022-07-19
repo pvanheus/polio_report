@@ -1,4 +1,4 @@
-<tool id="assess_poliovirus" name="Assess poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
+<tool id="assess_poliovirus_alignment" name="Assess poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
     </requirements>
@@ -19,7 +19,7 @@
         <param name="tracy_results" format="json" type="data_collection" collection_type="list" label="Tracy JSON reports" help="Input is a list of tracy assemble JSON reports for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
     </inputs>
     <outputs>
-        <output name="output1" format="json" label="Poliovirus alignment assessment on ${on_string}" />
+        <data name="output1" format="json" label="Poliovirus alignment assessment on ${on_string}" />
     </outputs>
     <tests>
         <test expect_num_outputs="1">
@@ -36,4 +36,16 @@
     <help><![CDATA[
         Given the output of the poliovirus pipeline, make a JSON summarising the comparison against the three poliovirus Sabin reference genomes.
     ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+            @software{van_Heusden_Poliovirus_variation_reporting_2022,
+                author = {van Heusden, Peter},
+                month = {7},
+                title = {{Poliovirus variation reporting scripts}},
+                url = {https://github.com/pvanheus/polio_report},
+                version = {0.1.0},
+                year = {2022}
+                }
+        ]]></citation>
+    </citations>
 </tool>

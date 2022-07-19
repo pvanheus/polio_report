@@ -3,3 +3,9 @@ owner: sanbi-uwc
 description: Assess the input from alignment against poliovirus reference genomes
 categories:
  - Sequence Analysis
+
+name: summarize_poliovirus_alignment
+owner: sanbi-uwc
+description: Summarize poliovirus alignment reports
+categories:
+ - Sequence Analysis 

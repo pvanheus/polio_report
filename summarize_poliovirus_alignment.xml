@@ -1,0 +1,60 @@
+<tool id="summarize_poliovirus_alignment" name="Summarize poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
+    <requirements>
+        <requirement type="package" version="3.9">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        python $__tool_directory__/summarize_alignment.py
+            --summary_output_filename '$output1'
+            --variant_list_outputs
+        #for $key in $variant_list.keys()
+            '$variant_list[$key]' 
+        #end for
+            --datasets
+        #for $dataset in $alignment_assessments
+             '$dataset' 
+        #end for
+        
+    ]]></command>
+    <inputs>
+        <!-- input is list of reports for poliovirus sabin 1, 2 and 3 -->
+        <param name="alignment_assessments" format="json" type="data_collection" collection_type="list" label="Poliovius alignment assessments" help="Input is a list of JSON reports from the assess_poliovirus_alignment tool" />
+    </inputs>
+    <outputs>
+        <data name="output1" format="tabular" label="Poliovirus variant summary on ${on_string}" />
+        <collection name="variant_list" type="list" label="Poliovirus variant lists on ${on_string}" structured_like="alignment_assessments" format="tabular">
+            <!-- todo - find a way to set the metadata columns for the tabular datasets -->
+        </collection>
+    </outputs>
+    <tests>
+        <test expect_num_outputs="3">
+            <param name="alignment_assessments" ftype="json">
+                <collection type="list">
+                    <element name="sample1" value="sample1_output.json" />
+                </collection>
+            </param>
+            <output name="output1" ftype="tabular">
+                <assert_contents>
+                    <has_text text="23:G:A;26:G:A;38:A:G;40:T:C;59:C:T;65:T:C;72:A:G;" />
+                </assert_contents>
+            </output>
+            <output_collection name="variant_list">
+                <element name="sample1" file="sample1_variants.tabular" ftype="tabular" />
+            </output_collection>
+        </test>
+    </tests>
+    <help><![CDATA[
+        Given a list of outputs of the assess_poliovirus_alignment tool, make a final summary.
+    ]]></help>
+    <citations>
+        <citation type="bibtex"><![CDATA[
+            @software{van_Heusden_Poliovirus_variation_reporting_2022,
+                author = {van Heusden, Peter},
+                month = {7},
+                title = {{Poliovirus variation reporting scripts}},
+                url = {https://github.com/pvanheus/polio_report},
+                version = {0.1.0},
+                year = {2022}
+                }
+        ]]></citation>
+    </citations>
+</tool>

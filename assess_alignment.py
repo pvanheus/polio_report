@@ -180,10 +180,11 @@ if __name__ == "__main__":
             min_mismatches = mismatches
             best_match_mismatch_list = mismatch_list
             best_match_quality = quality
+            best_match_reference = dataset_name
 
     info = {
         "sample_name": args.sample_name,
-        "best_reference": dataset_name,
+        "best_reference": best_match_reference,
         "mismatches": min_mismatches,
         "mismatch_list": best_match_mismatch_list,
         "quality": best_match_quality,

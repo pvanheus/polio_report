@@ -1,0 +1,5 @@
+name: assess_poliovirus_alignment
+owner: sanbi-uwc
+description: Assess the input from alignment against poliovirus reference genomes
+categories:
+ - Sequence Analysis

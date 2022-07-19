@@ -1,0 +1,39 @@
+<tool id="assess_poliovirus" name="Assess poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
+    <requirements>
+        <requirement type="package" version="3.9">python</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+        #set $dataset_names = ','.join([ dataset.name for dataset in $tracy_results ])
+        python $__tool_directory__/assess_alignment.py 
+            --dataset_names '$dataset_names'
+            --output_filename '$output1'
+            --sample_name '$tracy_results.name'
+            --datasets
+        #for $dataset in $tracy_results
+             '$dataset' 
+        #end for
+
+    ]]></command>
+    <inputs>
+        <!-- input is list of reports for poliovirus sabin 1, 2 and 3 -->
+        <param name="tracy_results" format="json" type="data_collection" collection_type="list" label="Tracy JSON reports" help="Input is a list of tracy assemble JSON reports for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
+    </inputs>
+    <outputs>
+        <output name="output1" format="json" label="Poliovirus alignment assessment on ${on_string}" />
+    </outputs>
+    <tests>
+        <test expect_num_outputs="1">
+            <param name="tracy_results" ftype="json">
+                <collection type="list">
+                    <element name="poliovirus1sabin" value="sample1/poliovirus1sabin.json" />
+                    <element name="poliovirus2sabin" value="sample1/poliovirus2sabin.json" />
+                    <element name="poliovirus3sabin" value="sample1/poliovirus3sabin.json" />
+                </collection>
+            </param>
+            <output name="output1" ftype="json" file="sample1_output.json" />
+        </test>
+    </tests>
+    <help><![CDATA[
+        Given the output of the poliovirus pipeline, make a JSON summarising the comparison against the three poliovirus Sabin reference genomes.
+    ]]></help>
+</tool>

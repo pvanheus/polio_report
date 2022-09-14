@@ -14,6 +14,7 @@ if __name__ == "__main__":
     parser.add_argument("--datasets", nargs="+")
     args = parser.parse_args()
 
+    galaxy_metadata = {}
     summary_output = open(args.summary_output_filename, "w")
     for i, json_filename in enumerate(args.datasets):
         alignment_summary = json.load(open(json_filename))
@@ -27,6 +28,7 @@ if __name__ == "__main__":
             alignment_summary["sample_name"],
             alignment_summary["best_reference"],
             alignment_summary["mismatches"],
+            alignment_summary["perc_mismatches"],
             round(alignment_summary["quality"], 2),
             mismatch_list,
             sep="\t",

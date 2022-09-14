@@ -1,28 +1,35 @@
-<tool id="assess_poliovirus_alignment" name="Assess poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
+<tool id="assess_poliovirus_alignment" name="Assess poliovirus alignment" version="0.7.0+galaxy0" profile="21.05">
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
-        #set $dataset_names = ','.join([ dataset.name for dataset in $tracy_results ])
+        #set $dataset_names = ','.join([ dataset.element_identifier for dataset in $tracy_results ])
         python $__tool_directory__/assess_alignment.py 
             --dataset_names '$dataset_names'
             --output_filename '$output1'
+            --consensus_output_filename '$output_consensus'
             --sample_name '$tracy_results.name'
             --datasets
         #for $dataset in $tracy_results
              '$dataset' 
+        #end for
+            --consensi
+        #for $consensus in $tracy_consensus_results
+            '$consensus'
         #end for
 
     ]]></command>
     <inputs>
         <!-- input is list of reports for poliovirus sabin 1, 2 and 3 -->
         <param name="tracy_results" format="json" type="data_collection" collection_type="list" label="Tracy JSON reports" help="Input is a list of tracy assemble JSON reports for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
+        <param name="tracy_consensus_results" format="FASTA" type="data_collection" collection_type="list" label="Tracy Consensus sequences" help="Input is a list of tracy assemble consensus sequences for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
     </inputs>
     <outputs>
         <data name="output1" format="json" label="Poliovirus alignment assessment on ${on_string}" />
+        <data name="output_consensus" format="fasta" label="Poliovirus best consensus on ${on_string}" />
     </outputs>
     <tests>
-        <test expect_num_outputs="1">
+        <test expect_num_outputs="2">
             <param name="tracy_results" ftype="json">
                 <collection type="list">
                     <element name="poliovirus1sabin" value="sample1/poliovirus1sabin.json" />
@@ -30,7 +37,19 @@
                     <element name="poliovirus3sabin" value="sample1/poliovirus3sabin.json" />
                 </collection>
             </param>
-            <output name="output1" ftype="json" file="sample1_output.json" />
+            <param name="tracy_consensus_results" ftype="fasta">
+                <collection type="list">
+                    <element name="poliovirus1sabin" value="sample1/poliovirus1sabin.fasta" />
+                    <element name="poliovirus2sabin" value="sample1/poliovirus2sabin.fasta" />
+                    <element name="poliovirus3sabin" value="sample1/poliovirus3sabin.fasta" />
+                </collection>
+            </param>
+            <output name="output1" ftype="json">
+                <assert_contents>
+                    <has_text text='"mismatch_list": [[2506, 25, "G", "A"], [2509, 28, "G", "A"], [2521, 40, "A", "G"], [2523, 42, "T", "C"], [2542, 61, "C", "T"], [2548, 67, "T", "C"], [2555, 74, "A", "G"], [2574, 93, "G", "A"], [2580, 99, "C", "T"], [2610, 129, "A", "G"], [2616, 135, "A", "G"], [2676, 195, "T", "C"], [2691, 210, "A", "G"], [2751, 270, "T", "C"], [2775, 294, "A", "G"], [2862, 381, "T", "C"], [2909, 428, "T", "C"], [2932, 451, "T", "C"], [2946, 465, "T", "C"], [3000, 519, "T", "C"], [3015, 534, "C", "T"], [3030, 549, "G", "A"], [3142, 661, "G", "A"]]' />
+                </assert_contents>
+            </output>
+            <output name="output_consensus" ftype="fasta" file="sample1_best_consensus.fasta" />
         </test>
     </tests>
     <help><![CDATA[

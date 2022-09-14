@@ -1,4 +1,4 @@
-<tool id="summarize_poliovirus_alignment" name="Summarize poliovirus alignment" version="0.1.0+galaxy0" profile="21.05">
+<tool id="summarize_poliovirus_alignment" name="Summarize poliovirus alignment" version="0.2.0+galaxy1" profile="21.05">
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
     </requirements>
@@ -20,7 +20,11 @@
         <param name="alignment_assessments" format="json" type="data_collection" collection_type="list" label="Poliovius alignment assessments" help="Input is a list of JSON reports from the assess_poliovirus_alignment tool" />
     </inputs>
     <outputs>
-        <data name="output1" format="tabular" label="Poliovirus variant summary on ${on_string}" />
+        <data name="output1" format="tabular" label="Poliovirus variant summary on ${on_string}">
+            <actions>
+                <action name="column_names" type="metadata" default="sample name,best matching reference,num variants,perc variants,quality,variant list" />
+            </actions>
+        </data>
         <collection name="variant_list" type="list" label="Poliovirus variant lists on ${on_string}" structured_like="alignment_assessments" format="tabular">
             <!-- todo - find a way to set the metadata columns for the tabular datasets -->
         </collection>
@@ -43,7 +47,32 @@
         </test>
     </tests>
     <help><![CDATA[
-        Given a list of outputs of the assess_poliovirus_alignment tool, make a final summary.
+        Given a list of outputs of the assess_poliovirus_alignment tool, make a summary and per sample variant list.
+
+        In the summary file the columns are:
+
+        1. sample name
+
+        2. best matching reference: the workflow compares sequences against Sabin 1, 2 and 3 poliovirus reference sequences and select the one that is the closest matching
+
+        3. number of variants relative to the best matching reference
+
+        4. percentage of variation: variants are only counted in the VP1 gene and this percentage is calculated by comparing the number of variants to the length of the VP1 gene in the best matching reference.
+
+        5. quality: this is an attempt at a quality score for the sequences
+
+        6. variant list: a semi-colon separated list of variants. variant positions are in 1-based coordinates counting from the first base of the VP1 gene. A variant list is produced for each sample, these might be more readable.
+
+        In the per-sample variant lists the columns are as follows:
+
+        1. variant position in the genome
+
+        2. variant position in VP1 (in 1-based coordinates)
+
+        3. base in reference
+
+        4. base in sequenced sample
+
     ]]></help>
     <citations>
         <citation type="bibtex"><![CDATA[

@@ -1,11 +1,16 @@
-name: assess_poliovirus_alignment
 owner: sanbi-uwc
-description: Assess the input from alignment against poliovirus reference genomes
+remote_repository_url: https://github.com/pvanheus/polio_report
 categories:
  - Sequence Analysis
+repositories:
+  assess_poliovirus_alignment:
+    description: Assess the input from alignment against poliovirus reference genomes
+    include:
+      - assess_poliovirus_alignment.xml
+      - assess_alignment.py
 
-name: summarize_poliovirus_alignment
-owner: sanbi-uwc
-description: Summarize poliovirus alignment reports
-categories:
- - Sequence Analysis 
+  summarize_poliovirus_alignment:
+    description: Summarize poliovirus alignment reports
+    include:
+      - summarize_poliovirus_alignment.xml
+      - summarize_alignment.py

@@ -106,7 +106,7 @@ def analyse_mismatches(
         if state == "M":
             # for mismatch store [pos_in_genome, pos_in_vp1, reference_base, sequenced_base]
             mismatch_list.append(
-                [i, i - offset, reference["align"][i], mismatch_bases[i]]
+                [i + 1, i - offset + 1, reference["align"][i], mismatch_bases[i]]
             )
     return [conflicts, matches, mismatches, mismatch_list]
 
@@ -145,17 +145,20 @@ def comma_split(args: str) -> list[str]:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output_filename", help="Path to output file")
+    parser.add_argument("--consensus_output_filename", help="Path to output file for best consensus")
     parser.add_argument("--sample_name", help="Name of sample being analysed")
     parser.add_argument(
         "--dataset_names", type=comma_split, help="Comma separated names for datasets"
     )
     parser.add_argument("--datasets", nargs="+")
+    parser.add_argument("--consensi", nargs="+")
     args = parser.parse_args()
 
     offsets = {
-        "poliovirus1sabin": 2480,
-        "poliovirus2sabin": 2482,
-        "poliovirus3sabin": 2477,
+        # these are in 0-based coordinates, so off-by-one from NCBI 1-based coordinates
+        "poliovirus1sabin": 2479, # V01150
+        "poliovirus2sabin": 2481, # AY184220
+        "poliovirus3sabin": 2478, # X00925
     }
 
     lengths = {
@@ -181,6 +184,8 @@ if __name__ == "__main__":
             best_match_mismatch_list = mismatch_list
             best_match_quality = quality
             best_match_reference = dataset_name
+            best_consensus = open(args.consensi[file_index]).read().replace('>Consensus', f'>{args.sample_name}')
+            percent_mismatches = round(min_mismatches / lengths[best_match_reference] * 100, 2)
 
     info = {
         "sample_name": args.sample_name,
@@ -188,5 +193,8 @@ if __name__ == "__main__":
         "mismatches": min_mismatches,
         "mismatch_list": best_match_mismatch_list,
         "quality": best_match_quality,
+        "perc_mismatches": percent_mismatches,
     }
     json.dump(info, open(args.output_filename, "w"))
+
+    open(args.consensus_output_filename, "w").write(best_consensus)

@@ -1,4 +1,4 @@
-<tool id="assess_poliovirus_alignment" name="Assess poliovirus alignment" version="0.7.0+galaxy0" profile="21.05">
+<tool id="assess_poliovirus_alignment" name="Assess poliovirus alignment" version="0.11.0+galaxy0" profile="21.05">
     <requirements>
         <requirement type="package" version="3.9">python</requirement>
     </requirements>
@@ -13,16 +13,11 @@
         #for $dataset in $tracy_results
              '$dataset' 
         #end for
-            --consensi
-        #for $consensus in $tracy_consensus_results
-            '$consensus'
-        #end for
 
     ]]></command>
     <inputs>
         <!-- input is list of reports for poliovirus sabin 1, 2 and 3 -->
         <param name="tracy_results" format="json" type="data_collection" collection_type="list" label="Tracy JSON reports" help="Input is a list of tracy assemble JSON reports for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
-        <param name="tracy_consensus_results" format="FASTA" type="data_collection" collection_type="list" label="Tracy Consensus sequences" help="Input is a list of tracy assemble consensus sequences for assembly guided by there reference sequences for poliovirus sabin 1, 2 and 3" />
     </inputs>
     <outputs>
         <data name="output1" format="json" label="Poliovirus alignment assessment on ${on_string}" />
@@ -53,7 +48,8 @@
         </test>
     </tests>
     <help><![CDATA[
-        Given the output of the poliovirus pipeline, make a JSON summarising the comparison against the three poliovirus Sabin reference genomes.
+        Given the output of the poliovirus pipeline, make a JSON summarising the comparison against the three poliovirus Sabin
+        reference genomes and output the best-matching consensus sequence.
     ]]></help>
     <citations>
         <citation type="bibtex"><![CDATA[

@@ -4,6 +4,7 @@ import argparse
 import json
 import sys
 from dataclasses import dataclass
+from textwrap import fill
 from typing import TextIO
 
 
@@ -46,7 +47,11 @@ def analyse_mismatches(
     max_end = max([int(al["leadingGaps"]) + len(al["align"]) for al in msas])
     base_state = ["n"] * len(reference["align"])
     mismatch_bases = {}
-    for i, base in enumerate(reference["align"]):
+    base_start = 0
+    for i, reference_base in enumerate(reference["align"]):
+        if vp1only and not base_start:
+            if data['gappedConsensus'][i] != '-':
+                base_start = i
         for k, al in enumerate(msas):
             leading_gaps = int(al["leadingGaps"])
             align_len = len(al["align"])
@@ -68,7 +73,7 @@ def analyse_mismatches(
                         has_secondary_basecall = True
                         # set this position to conflicted
                         base_state[i] = "C"
-                if al_base != base:
+                if al_base != reference_base:
                     # let's deal with all the cases where the base state doesn't match the reference
                     if base_state[i] == "G":
                         # the base state was G (a trace matches reference) and now we see a mismatch
@@ -108,7 +113,16 @@ def analyse_mismatches(
             mismatch_list.append(
                 [i + 1, i - offset + 1, reference["align"][i], mismatch_bases[i]]
             )
-    return [conflicts, matches, mismatches, mismatch_list]
+    if vp1only:
+        # we have trim consensus bases before vp1 region
+        if base_start <= offset:
+            cons_start = offset - base_start
+        else:
+            cons_start = 0
+        consensus = data['gapFreeConsensus'][cons_start:cons_start + length]
+    else:
+        consensus = data['gapFreeConsensus'] 
+    return [conflicts, matches, mismatches, mismatch_list, consensus]
 
 
 def analyse_trace_quality(json_file: TextIO) -> float:
@@ -151,7 +165,6 @@ if __name__ == "__main__":
         "--dataset_names", type=comma_split, help="Comma separated names for datasets"
     )
     parser.add_argument("--datasets", nargs="+")
-    parser.add_argument("--consensi", nargs="+")
     args = parser.parse_args()
 
     offsets = {
@@ -174,7 +187,7 @@ if __name__ == "__main__":
         )  # take the name but remove any json suffix
         offset = offsets[dataset_name]
         length = lengths[dataset_name]
-        (conflicts, matches, mismatches, mismatch_list) = analyse_mismatches(
+        (conflicts, matches, mismatches, mismatch_list, consensus) = analyse_mismatches(
             open(json_filename), offset, length
         )
         # analyse_mismatches(json_filename, True)
@@ -184,7 +197,7 @@ if __name__ == "__main__":
             best_match_mismatch_list = mismatch_list
             best_match_quality = quality
             best_match_reference = dataset_name
-            best_consensus = open(args.consensi[file_index]).read().replace('>Consensus', f'>{args.sample_name}')
+            best_consensus = consensus
             percent_mismatches = round(min_mismatches / lengths[best_match_reference] * 100, 2)
 
     info = {
@@ -194,7 +207,8 @@ if __name__ == "__main__":
         "mismatch_list": best_match_mismatch_list,
         "quality": best_match_quality,
         "perc_mismatches": percent_mismatches,
+        "consensus": best_consensus
     }
     json.dump(info, open(args.output_filename, "w"))
 
-    open(args.consensus_output_filename, "w").write(best_consensus)
+    open(args.consensus_output_filename, "w").write(f'>{args.sample_name}\n' + fill(best_consensus) + '\n')
